@@ -1,0 +1,60 @@
+<ul id="products">
+  <li data-name="T-shirt" data-price="20">
+    T-shirt - 20€
+    <button class="add-to-cart">Ajouter</button>
+  </li>
+  <li data-name="Mug" data-price="10">
+    Mug - 10€
+    <button class="add-to-cart">Ajouter</button>
+  </li>
+</ul>
+
+<h3>Panier</h3>
+<ul id="cart"></ul>
+<p>Total : <span id="total">0</span>€</p>
+
+<form id="checkout-form" style="display:none;">
+  <input id="name" placeholder="Nom" />
+  <input id="email" type="email" placeholder="Email" />
+  <label><input type="checkbox" id="cgu" /> J'accepte les CGU</label>
+  <button id="submit-order" type="submit">Valider</button>
+</form>
+
+<p id="confirmation" style="display:none;">Commande confirmée !</p>
+
+<script>
+  const cart = [];
+  const cartList = document.getElementById('cart');
+  const totalEl = document.getElementById('total');
+  const form = document.getElementById('checkout-form');
+  const confirm = document.getElementById('confirmation');
+
+  document.querySelectorAll('.add-to-cart').forEach((btn, i) => {
+    btn.addEventListener('click', () => {
+      const item = btn.parentElement.dataset;
+      cart.push(item);
+      const li = document.createElement('li');
+      li.textContent = `${item.name} - ${item.price}€`;
+      cartList.appendChild(li);
+      const newTotal = cart.reduce((sum, p) => sum + Number(p.price), 0);
+      totalEl.textContent = newTotal;
+      if (newTotal > 0) form.style.display = 'block';
+    });
+  });
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const cgu = document.getElementById('cgu').checked;
+
+    if (!name || !email.includes('@') || !cgu) {
+      alert("Formulaire invalide");
+      return;
+    }
+
+    form.style.display = 'none';
+    confirm.style.display = 'block';
+  });
+</script>
+
