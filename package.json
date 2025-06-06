@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "cypress": "cypress open"
+    "cypress": "cypress open",
+    "cypress:run": "cypress run",
+    "test:books": "cypress run --spec \"cypress/e2e/books.spec.cy.js\"",
+    "test:shop": "cypress run --spec \"cypress/e2e/shop.spec.cy.js\""
   },
   "keywords": [],
   "author": "",
