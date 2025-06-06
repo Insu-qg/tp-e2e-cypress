@@ -86,4 +86,70 @@ describe('Shopping Cart Feature', () => {
     // Form should be hidden
     cy.get('#checkout-form').should('not.be.visible')
   })
+
+  describe('Multiple Products Handling', () => {
+    it('should handle multiple additions of the same product', () => {
+      // Add T-shirt twice
+      cy.contains('li', 'T-shirt').find('.add-to-cart').click()
+      cy.contains('li', 'T-shirt').find('.add-to-cart').click()
+      
+      // Verify cart has 2 items
+      cy.get('#cart li').should('have.length', 2)
+      // Verify total is 40€ (20€ x 2)
+      cy.get('#total').should('have.text', '40')
+    })
+
+    it('should handle different products in any order', () => {
+      // Add products in different order
+      cy.contains('li', 'Mug').find('.add-to-cart').click()
+      cy.contains('li', 'T-shirt').find('.add-to-cart').click()
+      cy.contains('li', 'Mug').find('.add-to-cart').click()
+      
+      // Verify cart has 3 items
+      cy.get('#cart li').should('have.length', 3)
+      // Verify total is 40€ (10€ + 20€ + 10€)
+      cy.get('#total').should('have.text', '40')
+    })
+  })
+
+  describe('Combined Form Validation Errors', () => {
+    beforeEach(() => {
+      cy.fixture('users').as('userData')
+      cy.contains('li', 'T-shirt').find('.add-to-cart').click()
+    })
+
+    it('should handle multiple form errors simultaneously', () => {
+      cy.get('@userData').then(users => {
+        // Test invalid email only
+        cy.get('#email').type(users.invalidUser.email)
+        // Don't fill name field at all
+        // Don't check CGU
+        cy.get('#submit-order').click()
+        
+        // Verify form wasn't submitted
+        cy.get('#confirmation').should('not.be.visible')
+        cy.get('#checkout-form').should('be.visible')
+      })
+    })
+
+    it('should complete order with valid user data and screenshot', () => {
+      cy.get('@userData').then(users => {
+        // Use valid user data
+        cy.get('#name').type(users.validUser.name)
+        cy.get('#email').type(users.validUser.email)
+        cy.get('#cgu').check()
+        cy.get('#submit-order').click()
+        
+        // Verify success and take screenshot
+        cy.get('#confirmation')
+          .should('be.visible')
+          .and('contain', 'Commande confirmée !')
+        
+        // Take screenshot of final state
+        cy.screenshot('successful-order-confirmation', {
+          capture: 'viewport'
+        })
+      })
+    })
+  })
 })
